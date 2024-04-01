@@ -1,47 +1,101 @@
 #include <iostream>
 #include <cmath>
 #include <string>
-#include <functional>
 
-// Función para derivar ln(x)
-double derivarLn(double x) {
-    if (x <= 0) {
-        std::cerr << "Error: x debe ser mayor que 0." << std::endl;
-        return NAN;
+class Expresion {
+public:
+    virtual ~Expresion() {}
+    virtual double evaluar(double x) const = 0;
+    virtual Expresion* derivar() const = 0;
+};
+
+class DerivadaLogaritmoNaturalPotencia : public Expresion {
+    double u;
+public:
+    DerivadaLogaritmoNaturalPotencia(double u) : u(u) {}
+
+    double evaluar(double x) const {
+        // La derivada de ln(u^x) respecto a x.
+        return log(u) * x / u;
     }
-    return 1 / x;
-}
 
-// Función para derivar log_b(x), donde b es la base
-double derivarLogBase(double base, double x) {
-    if (x <= 0 || base <= 0 || base == 1) {
-        std::cerr << "Error: x y la base deben ser mayores que 0 y la base no puede ser 1." << std::endl;
-        return NAN;
+    Expresion* derivar() const {
+        return 0;
     }
-    return 1 / (x * log(base));
-}
+};
 
-// Función principal
+class DerivadaLogaritmoBaseAPotencia : public Expresion {
+    double base, u;
+public:
+    DerivadaLogaritmoBaseAPotencia(double base, double u) : base(base), u(u) {}
+
+    double evaluar(double x) const {
+        // La derivada de log_base(u^x) respecto a x.
+        return (log(u) * x) / (log(base) * u);
+    }
+
+    Expresion* derivar() const {
+        return 0;
+    }
+};
+
+class LogaritmoNaturalPotencia : public Expresion {
+    double u;
+public:
+    LogaritmoNaturalPotencia(double u) : u(u) {}
+
+    double evaluar(double x) const {
+        return log(pow(u, x));
+    }
+
+    Expresion* derivar() const {
+        return new DerivadaLogaritmoNaturalPotencia(u);
+    }
+};
+
+class LogaritmoBaseAPotencia : public Expresion {
+    double base, u;
+public:
+    LogaritmoBaseAPotencia(double base, double u) : base(base), u(u) {}
+
+    double evaluar(double x) const {
+        return log(pow(u, x)) / log(base);
+    }
+
+    Expresion* derivar() const {
+        return new DerivadaLogaritmoBaseAPotencia(base, u);
+    }
+};
+
 int main() {
-    std::string funcion;
-    double base, x;
+    std::string tipoLogaritmo;
+    double base = 0, u, x;
 
-    std::cout << "Introduce la función a derivar (ln o log): ";
-    std::cin >> funcion;
-
-    std::cout << "Introduce el valor de x: ";
+    std::cout << "Ingrese el tipo de logaritmo ('ln' para logaritmo natural, 'log' para logaritmo en base a): ";
+    std::cin >> tipoLogaritmo;
+    if (tipoLogaritmo == "log") {
+        std::cout << "Ingrese la base del logaritmo: ";
+        std::cin >> base;
+    }
+    std::cout << "Ingrese el valor de u (base del exponente): ";
+    std::cin >> u;
+    std::cout << "Ingrese el valor de x (exponente): ";
     std::cin >> x;
 
-    if (funcion == "ln") {
-        std::cout << "La derivada de ln(x) en x = " << x << " es " << derivarLn(x) << std::endl;
-    } else if (funcion == "log") {
-        std::cout << "Introduce la base del logaritmo: ";
-        std::cin >> base;
-        std::cout << "La derivada de log_" << base << "(x) en x = " << x << " es " << derivarLogBase(base, x) << std::endl;
+    Expresion* expr;
+    if (tipoLogaritmo == "ln") {
+        expr = new LogaritmoNaturalPotencia(u);
     } else {
-        std::cout << "Función no soportada." << std::endl;
+        expr = new LogaritmoBaseAPotencia(base, u);
     }
+
+    Expresion* derivada = expr->derivar();
+
+    std::cout << "El valor de la funcion logaritmica en x=" << x << " es " << expr->evaluar(x) << std::endl;
+    std::cout << "La derivada de la funcion logaritmica en x=" << x << " es " << derivada->evaluar(x) << std::endl;
+
+    delete expr;
+    delete derivada;
 
     return 0;
 }
-
