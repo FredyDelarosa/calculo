@@ -14,12 +14,12 @@ class DerivadaLogaritmoNaturalPotencia : public Expresion {
 public:
     DerivadaLogaritmoNaturalPotencia(double u) : u(u) {}
 
-    double evaluar(double x) const {
+    double evaluar(double x) const override {
         // La derivada de ln(u^x) respecto a x.
-        return log(u) * x / u;
+        return log(u);
     }
 
-    Expresion* derivar() const {
+    Expresion* derivar() const override {
         return 0;
     }
 };
@@ -29,12 +29,12 @@ class DerivadaLogaritmoBaseAPotencia : public Expresion {
 public:
     DerivadaLogaritmoBaseAPotencia(double base, double u) : base(base), u(u) {}
 
-    double evaluar(double x) const {
+    double evaluar(double x) const override {
         // La derivada de log_base(u^x) respecto a x.
-        return (log(u) * x) / (log(base) * u);
+        return (log(u)  / log (base));
     }
 
-    Expresion* derivar() const {
+    Expresion* derivar() const override {
         return 0;
     }
 };
@@ -85,14 +85,24 @@ int main() {
     Expresion* expr;
     if (tipoLogaritmo == "ln") {
         expr = new LogaritmoNaturalPotencia(u);
+        base = exp(1); // Definir base como e para logaritmos naturales
     } else {
         expr = new LogaritmoBaseAPotencia(base, u);
     }
 
+    double resultado = expr->evaluar(x); // Almacenar el resultado para uso posterior
+
     Expresion* derivada = expr->derivar();
 
-    std::cout << "El valor de la funcion logaritmica en x=" << x << " es " << expr->evaluar(x) << std::endl;
+    std::cout << "El valor de la funcion logaritmica en x=" << x << " es " << resultado << std::endl;
     std::cout << "La derivada de la funcion logaritmica en x=" << x << " es " << derivada->evaluar(x) << std::endl;
+
+    // Ajustar la impresión para manejar adecuadamente cuando base == e
+    if (tipoLogaritmo == "ln") {
+        std::cout << "Resultado en su forma exacta: ln(" << resultado << ")" << std::endl;
+    } else {
+        std::cout << "Resultado en su forma exacta: log_" << base << "(" << resultado << ") = " << log(resultado) << "/" << log(base) << std::endl;
+    }
 
     delete expr;
     delete derivada;
