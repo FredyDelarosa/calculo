@@ -69,10 +69,11 @@ public:
 
 int main() {
     std::string tipoLogaritmo;
-    double base = 0, u, x;
+    double base, u, x;
 
     std::cout << "Ingrese el tipo de logaritmo ('ln' para logaritmo natural, 'log' para logaritmo en base a): ";
     std::cin >> tipoLogaritmo;
+
     if (tipoLogaritmo == "log") {
         std::cout << "Ingrese la base del logaritmo: ";
         std::cin >> base;
@@ -85,23 +86,23 @@ int main() {
     Expresion* expr;
     if (tipoLogaritmo == "ln") {
         expr = new LogaritmoNaturalPotencia(u);
-        base = exp(1); // Definir base como e para logaritmos naturales
     } else {
         expr = new LogaritmoBaseAPotencia(base, u);
     }
 
-    double resultado = expr->evaluar(x); // Almacenar el resultado para uso posterior
+    double resultado = expr->evaluar(x); // Almacena el resultado
 
     Expresion* derivada = expr->derivar();
 
     std::cout << "El valor de la funcion logaritmica en x=" << x << " es " << resultado << std::endl;
     std::cout << "La derivada de la funcion logaritmica en x=" << x << " es " << derivada->evaluar(x) << std::endl;
 
-    // Ajustar la impresión para manejar adecuadamente cuando base == e
+    // Mostrar la forma exacta del logaritmo
     if (tipoLogaritmo == "ln") {
-        std::cout << "Resultado en su forma exacta: ln(" << resultado << ")" << std::endl;
+        std::cout << "Resultado en su forma exacta: ln(" << pow(u, x) << ")" << std::endl;
     } else {
-        std::cout << "Resultado en su forma exacta: log_" << base << "(" << resultado << ") = " << log(resultado) << "/" << log(base) << std::endl;
+        std::cout << "Resultado en su forma exacta: log_" << base << "(" << pow(u, x) << ") = "
+                  << "log(" << pow(u, x) << ")/log(" << base << ")" << std::endl;
     }
 
     delete expr;
